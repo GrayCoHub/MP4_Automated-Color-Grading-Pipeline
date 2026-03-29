@@ -4,6 +4,45 @@
 
 ---
 
+## COMPATIBILITY NOTE
+
+This pipeline was built on a machine running a custom OpenCV build compiled
+from source with full CUDA GPU acceleration. This is not the standard OpenCV
+that most Python users have installed via pip.
+
+**If you installed OpenCV with:**
+```
+pip install opencv-python
+```
+...you have the standard CPU-only version. This is by far the most common
+installation and works well for most use cases. However it does not include
+the CUDA-accelerated modules (cv2.cuda, cv2.cudacodec) that parts of this
+pipeline depend on -- specifically the live vessel detection pipeline and
+hardware video decode via NVDEC.
+
+**What this means for you:**
+```
+apply_final_to_video.py:   Will work with standard pip opencv
+                           CLAHE and color operations are standard OpenCV
+                           No GPU required for the color grading pipeline
+
+phase1_run.py:             Will fail -- attempts NVDEC hardware decode
+                           via cv2.cudacodec which does not exist in
+                           pip opencv
+
+The full pipeline as documented here requires:
+  NVIDIA GPU
+  CUDA 12.x
+  OpenCV compiled from source with CUDA support
+  Driver 560.94 (locked for this machine)
+```
+
+If you are running the color grading portion only (apply_final_to_video.py)
+and have standard pip opencv installed, the script should work for you
+as long as ffmpeg is available on your system.
+
+---
+
 ## THE SHORT ANSWER
 
 The single command:
@@ -150,7 +189,7 @@ Step 3: Saturation +10% + Cool shadow toning
 
 ---
 
-## RUNNING THE PIPELINE ON A NEW VIDEO
+
 
 ### Prerequisites
 1. Shoot in D-Log M with fixed Kelvin white balance (see Pre-Flight Checklist)
