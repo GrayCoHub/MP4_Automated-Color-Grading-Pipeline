@@ -156,7 +156,15 @@ Step 3: Saturation +10% + Cool shadow toning
 1. Shoot in D-Log M with fixed Kelvin white balance (see Pre-Flight Checklist)
 2. Copy source *_D.MP4 file to input_video\ folder
 3. DaVinci Resolve does NOT need to be open
-4. Python and OpenCV must be available
+4. Custom OpenCV CUDA CMake build must be active on this machine
+   (see OpenCV section below -- this is not a standard pip install)
+5. Python 3.11.8 at C:\Program Files\Python311\python.exe
+
+Verify OpenCV before running:
+```powershell
+& "C:\Program Files\Python311\python.exe" -c "import cv2; print(cv2.cuda.getCudaEnabledDeviceCount())"
+```
+Must return > 0. If 0 or error: STOP -- do not proceed.
 
 ### Run
 ```powershell
@@ -265,16 +273,62 @@ cannot be fixed in post-processing.
 
 ## TECHNICAL CONSTRAINTS
 
+### OpenCV — Custom CMake CUDA Build (Critical)
+
+This pipeline depends on a custom-compiled version of OpenCV built from source
+with CUDA support enabled. This is fundamentally different from the standard
+OpenCV package available via pip and the two are NOT interchangeable.
+
 ```
-OpenCV:   Custom CMake CUDA build -- NEVER pip install opencv
-          Verify: python -c "import cv2; print(cv2.cuda.getCudaEnabledDeviceCount())"
-          Must return > 0
+Standard pip install (opencv-python):
+  pip install opencv-python
+  Installs a pre-compiled binary from PyPI
+  No CUDA support
+  No NVDEC hardware video decode
+  No GPU-accelerated operations
+  Works on any machine without a GPU
+  Will NOT work for this pipeline's GPU operations
 
-Driver:   NVIDIA 560.94 -- NEVER update
-          Protects the custom OpenCV CUDA build
-          ffmpeg NVENC blocked -- libx264 CPU encoding used instead
+Custom CMake CUDA build (what this pipeline uses):
+  Compiled from source against CUDA 12.6
+  cuDNN 9.20.0 integrated
+  NVDEC enabled via NVCUVID
+  NVENC enabled
+  GPU-accelerated Farneback optical flow
+  Hardware video decode via cv2.cudacodec
+  Requires NVIDIA GPU + matching driver
+  Built specifically for this machine
+```
 
-Python:   3.11.8 at C:\Program Files\Python311\python.exe
+**Can pip opencv replace the custom build?**
+No -- and attempting to do so will destroy the pipeline:
+```
+pip install opencv-python     DESTROYS the custom build
+pip install opencv-contrib    DESTROYS the custom build
+```
+Both commands overwrite the custom compiled cv2.pyd with a generic binary
+that has no CUDA capability. Every GPU pipeline on this machine stops working.
+Recovery requires a full rebuild from source which takes hours.
+
+**Verification before every session:**
+```powershell
+& "C:\Program Files\Python311\python.exe" -c "import cv2; print(cv2.cuda.getCudaEnabledDeviceCount())"
+```
+Must return > 0. If 0: the CUDA build has been overwritten. Stop immediately.
+
+### NVIDIA Driver — Locked at 560.94
+
+The NVIDIA driver must NOT be updated. Driver 560.94 is the confirmed working
+version for the custom OpenCV CUDA build. Updating the driver risks breaking
+NVDEC, NVCUVID, and all GPU pipelines. This also means ffmpeg NVENC hardware
+encoding is unavailable (requires driver 570+) -- all video encoding in this
+pipeline uses libx264 CPU encoding instead.
+
+### Python
+```
+Version:  3.11.8
+Location: C:\Program Files\Python311\python.exe
+Manager:  pyenv-win
 ```
 
 ---
