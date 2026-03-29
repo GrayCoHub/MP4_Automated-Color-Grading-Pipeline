@@ -1,8 +1,10 @@
 # README — Automated Color Grading Pipeline
+
 # DJI Mavic 4 Pro D-Log M | SE Alaska Marine Footage
+
 # Last updated: 2026-03-28
 
----
+\---
 
 ## COMPATIBILITY NOTE
 
@@ -11,22 +13,26 @@ from source with full CUDA GPU acceleration. This is not the standard OpenCV
 that most Python users have installed via pip.
 
 **If you installed OpenCV with:**
+
 ```
 pip install opencv-python
 ```
-...you have the standard CPU-only version. This is by far the most common
+
+... then you have the standard CPU-only version of opencv. This is by far the most common
 installation and works well for most use cases. However it does not include
 the CUDA-accelerated modules (cv2.cuda, cv2.cudacodec) that parts of this
-pipeline depend on -- specifically the live vessel detection pipeline and
-hardware video decode via NVDEC.
+pipeline depend on -- specifically the hardware video decode via NVDEC.
+
+
 
 **What this means for you:**
+
 ```
-apply_final_to_video.py:   Will work with standard pip opencv
+apply\\\_final\\\_to\\\_video.py:   Will work with standard pip opencv
                            CLAHE and color operations are standard OpenCV
                            No GPU required for the color grading pipeline
 
-phase1_run.py:             Will fail -- attempts NVDEC hardware decode
+phase1\\\_run.py:             Will fail -- attempts NVDEC hardware decode
                            via cv2.cudacodec which does not exist in
                            pip opencv
 
@@ -37,28 +43,35 @@ The full pipeline as documented here requires:
   Driver 560.94 (locked for this machine)
 ```
 
-If you are running the color grading portion only (apply_final_to_video.py)
+If you are running the color grading portion only (apply\_final\_to\_video.py)
 and have standard pip opencv installed, the script should work for you
 as long as ffmpeg is available on your system.
 
----
+\---
 
 ## THE SHORT ANSWER
 
-The single command:
-  & "C:\Program Files\Python311\python.exe" apply_final_to_video.py
+The single run command:
 
-...is NOT a shortcut that skips the phases. It is the END RESULT of completing
+
+
+\& "C:\\Program Files\\Python311\\python.exe" apply\_final\_to\_video.py
+
+
+
+This is NOT a shortcut that skips the phases. It is the END RESULT of completing
 all three phases. Each phase was a research and evaluation process that determined
-one component of the processing chain. apply_final_to_video.py simply executes
+one component of the processing chain. apply\_final\_to\_video.py simply executes
 the confirmed chain -- it could not have been written without completing Phases 1,
 2, and 3 first.
 
-Think of it this way:
-  Phase 1, 2, 3 = the research        (done once)
-  apply_final_to_video.py = the result (runs forever)
 
----
+
+Think of it this way:
+Phase 1, 2, 3 = the research        (done once)
+apply\_final\_to\_video.py = the result (runs forever)
+
+\---
 
 ## UNDERSTANDING D-LOG M
 
@@ -66,6 +79,7 @@ Before explaining the pipeline it is important to understand what D-Log M actual
 is -- because this directly shaped every decision made in Phase 1.
 
 ### What "log" means
+
 A logarithmic color profile compresses the tonal range of a scene into the available
 recording space. Bright areas (sky, sun glint on water) are pulled down and dark areas
 (shadows, forest) are pushed up. The result looks flat and washed out straight out of
@@ -73,6 +87,7 @@ camera. The benefit is maximum dynamic range -- details in highlights and shadow
 both preserved where a standard recording would clip one or both ends.
 
 ### D-Log M is not real D-Log
+
 DJI produces two log profiles:
 
 ```
@@ -99,6 +114,7 @@ real D-Log" -- and they are correct. This is not a marketing complaint but a
 technical fact with direct consequences for post-processing.
 
 ### Why this matters for grading
+
 Because DJI never published the D-Log M color science, Blackmagic Design cannot
 build a mathematically correct CST for it in DaVinci Resolve. The DJI D-Gamut/D-Log
 setting in Resolve's CST was designed for true D-Log -- applying it to D-Log M
@@ -106,14 +122,16 @@ produces incorrect results. Many colorists make this mistake and produce footage
 with wrong color response as a result.
 
 The only correct options are:
-  1. Use a LUT specifically built for D-Log M
-  2. Treat it as slightly flat Rec.709 and correct by eye
+
+1. Use a LUT specifically built for D-Log M
+2. Treat it as slightly flat Rec.709 and correct by eye
 
 DJI provides an official LUT for the conversion, but as Phase 1 evaluation
 confirmed, it has a significant flaw: the bottom 5% of the tone curve is a flat
 line, crushing shadow detail entirely.
 
 ### Why the Zeb Gardner LUT is the right solution
+
 Zeb Gardner (zebgardner.com) approached D-Log M correctly -- rather than assuming
 it follows standard log math, he measured its actual tone response using a color
 checker reference and built a conversion LUT from the measured data. This
@@ -121,6 +139,7 @@ reverse-engineering approach produces the most accurate conversion precisely bec
 it works from D-Log M's actual non-standard behavior rather than theoretical log math.
 
 The measured results confirmed this approach:
+
 ```
 DJI official LUT:      Delta E mean 7.61  Shadow Delta L 4.57
 Zeb Gardner LUT:       Delta E mean 5.83  Shadow Delta L 0.28
@@ -129,7 +148,7 @@ Zeb Gardner LUT:       Delta E mean 5.83  Shadow Delta L 0.28
 The Zeb Gardner LUT was selected as the Phase 1 winner and is the foundation of
 the entire master processing chain.
 
----
+\---
 
 ## WHAT THE PHASES ACTUALLY DO
 
@@ -140,7 +159,7 @@ through automated contact sheet comparison.
 
 ```
 Phase 1 asked:    Which base LUT converts D-Log M to Rec.709 most accurately?
-Phase 1 answered: Zeb Gardner LUT (DLOGM_REC709_65_CUBE_ZRG_V1.cube)
+Phase 1 answered: Zeb Gardner LUT (DLOGM\\\_REC709\\\_65\\\_CUBE\\\_ZRG\\\_V1.cube)
 
 Phase 2 asked:    What single refinement best improves the Zeb Gardner output?
 Phase 2 answered: CLAHE clipLimit=2.0 tileGrid=(8,8) on LAB L channel
@@ -150,10 +169,10 @@ Phase 3 answered: Yes -- Saturation +10% + Cool shadow toning (B7)
 ```
 
 Once those questions were answered the answers were baked permanently into
-apply_final_to_video.py. The research is complete. The phases do not need
+apply\_final\_to\_video.py. The research is complete. The phases do not need
 to be re-run for every new video.
 
----
+\---
 
 ## THE MASTER PROCESSING CHAIN
 
@@ -187,36 +206,41 @@ Step 3: Saturation +10% + Cool shadow toning
         at midtones and above -- highlights unaffected.
 ```
 
----
+\---
 
 
 
 ### Prerequisites
+
 1. Shoot in D-Log M with fixed Kelvin white balance (see Pre-Flight Checklist)
-2. Copy source *_D.MP4 file to input_video\ folder
+2. Copy source \*\_D.MP4 file to input\_video\\ folder
 3. DaVinci Resolve does NOT need to be open
 4. Custom OpenCV CUDA CMake build must be active on this machine
-   (see OpenCV section below -- this is not a standard pip install)
-5. Python 3.11.8 at C:\Program Files\Python311\python.exe
+(see OpenCV section below -- this is not a standard pip install)
+5. Python 3.11.8 at C:\\Program Files\\Python311\\python.exe
 
 Verify OpenCV before running:
+
 ```powershell
-& "C:\Program Files\Python311\python.exe" -c "import cv2; print(cv2.cuda.getCudaEnabledDeviceCount())"
+\\\& "C:\\\\Program Files\\\\Python311\\\\python.exe" -c "import cv2; print(cv2.cuda.getCudaEnabledDeviceCount())"
 ```
+
 Must return > 0. If 0 or error: STOP -- do not proceed.
 
 ### Run
+
 ```powershell
-cd "C:\dev\All_dev_projects_testing_folder\Devinci_Resolve_automation_M4Pro_video"
-& "C:\Program Files\Python311\python.exe" apply_final_to_video.py
+cd "C:\\\\dev\\\\All\\\_dev\\\_projects\\\_testing\\\_folder\\\\Devinci\\\_Resolve\\\_automation\\\_M4Pro\\\_video"
+\\\& "C:\\\\Program Files\\\\Python311\\\\python.exe" apply\\\_final\\\_to\\\_video.py
 ```
 
 ### What happens
+
 ```
-Script scans input_video\ and displays available clips:
-  Available source clips in input_video\:
-    1. DJI_20260223132708_0001_D.MP4
-    2. DJI_20260224091532_0001_D.MP4
+Script scans input\\\_video\\\\ and displays available clips:
+  Available source clips in input\\\_video\\\\:
+    1. DJI\\\_20260223132708\\\_0001\\\_D.MP4
+    2. DJI\\\_20260224091532\\\_0001\\\_D.MP4
 
 Select input video (enter number or full path): 1
 
@@ -225,10 +249,10 @@ Processing begins:
   Frame 200 / 1248  |  elapsed 16.1s  |  ETA 82.4s
   ...
 
-Output: phase3_output_video\DJI_20260223132708_0001_D_final_B7.MP4
+Output: phase3\\\_output\\\_video\\\\DJI\\\_20260223132708\\\_0001\\\_D\\\_final\\\_B7.MP4
 ```
 
----
+\---
 
 ## WHEN TO RE-RUN THE PHASES
 
@@ -250,27 +274,27 @@ Dissatisfied with output quality:
   Or evaluate Phantom LUTs as Phase 1 alternative.
 
 New LUT options available:
-  Add to C:\dev\LUTs_folder\
+  Add to C:\\\\dev\\\\LUTs\\\_folder\\\\
   Re-run Phase 1 contact sheet comparison.
 ```
 
 For routine filming at the same SE Alaska location with the same Mavic 4 Pro --
-the phases do not need to be re-run. apply_final_to_video.py is the permanent
+the phases do not need to be re-run. apply\_final\_to\_video.py is the permanent
 production tool.
 
----
+\---
 
 ## PHASE SCRIPTS (for reference and re-evaluation)
 
-| Script | Purpose | When to use |
-|--------|---------|-------------|
-| phase1_run.py | Phase 1 contact sheet evaluation | Re-evaluating base LUT |
-| poc_phase2.py | Phase 2 refinement POC | Re-evaluating refinements |
-| poc_phase3.py | Phase 3 bracket POC | Re-evaluating bracket variants |
-| apply_lut_to_video.py | Apply any single LUT to a video | Testing individual LUTs |
-| apply_final_to_video.py | Apply confirmed master chain | **Production use** |
+|Script|Purpose|When to use|
+|-|-|-|
+|phase1\_run.py|Phase 1 contact sheet evaluation|Re-evaluating base LUT|
+|poc\_phase2.py|Phase 2 refinement POC|Re-evaluating refinements|
+|poc\_phase3.py|Phase 3 bracket POC|Re-evaluating bracket variants|
+|apply\_lut\_to\_video.py|Apply any single LUT to a video|Testing individual LUTs|
+|apply\_final\_to\_video.py|Apply confirmed master chain|**Production use**|
 
----
+\---
 
 ## PRE-FLIGHT CHECKLIST — DJI Mavic 4 Pro
 
@@ -308,7 +332,7 @@ cannot be fixed in post-processing.
                    Then fly.
 ```
 
----
+\---
 
 ## TECHNICAL CONSTRAINTS
 
@@ -341,18 +365,22 @@ Custom CMake CUDA build (what this pipeline uses):
 
 **Can pip opencv replace the custom build?**
 No -- and attempting to do so will destroy the pipeline:
+
 ```
 pip install opencv-python     DESTROYS the custom build
 pip install opencv-contrib    DESTROYS the custom build
 ```
+
 Both commands overwrite the custom compiled cv2.pyd with a generic binary
 that has no CUDA capability. Every GPU pipeline on this machine stops working.
 Recovery requires a full rebuild from source which takes hours.
 
 **Verification before every session:**
+
 ```powershell
-& "C:\Program Files\Python311\python.exe" -c "import cv2; print(cv2.cuda.getCudaEnabledDeviceCount())"
+\\\& "C:\\\\Program Files\\\\Python311\\\\python.exe" -c "import cv2; print(cv2.cuda.getCudaEnabledDeviceCount())"
 ```
+
 Must return > 0. If 0: the CUDA build has been overwritten. Stop immediately.
 
 ### NVIDIA Driver — Locked at 560.94
@@ -364,20 +392,22 @@ encoding is unavailable (requires driver 570+) -- all video encoding in this
 pipeline uses libx264 CPU encoding instead.
 
 ### Python
+
 ```
 Version:  3.11.8
-Location: C:\Program Files\Python311\python.exe
+Location: C:\\\\Program Files\\\\Python311\\\\python.exe
 Manager:  pyenv-win
 ```
 
----
+\---
 
 ## PROJECT DOCUMENTS
 
 ```
 CLAUDE.md             Main spec -- Phase 1 complete, pipeline overview
-CLAUDE_Phase2.md      Phase 2 spec and results
-CLAUDE_Phase3.md      Phase 3 spec, results, apply_final_to_video spec
-Project_Brief.md      Full narrative of all three phases and decisions
-project_notes\        Lessons learned, howtos, CC session notes
+CLAUDE\\\_Phase2.md      Phase 2 spec and results
+CLAUDE\\\_Phase3.md      Phase 3 spec, results, apply\\\_final\\\_to\\\_video spec
+Project\\\_Brief.md      Full narrative of all three phases and decisions
+project\\\_notes\\\\        Lessons learned, howtos, CC session notes
 ```
+
