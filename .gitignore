@@ -1,0 +1,31 @@
+# Video files
+*.MP4
+*.mp4
+*.MKV
+*.mkv
+*.avi
+*.AVI
+*.mov
+*.MOV
+
+# Video folders
+input_video/
+phase1_output_video/
+phase2_output_video/
+phase3_output_video/
+
+# Generated contact sheet images
+phase1_contact_sheets/
+phase2_contact_sheets/
+phase3_contact_sheets/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Claude Code local settings
+.claude/
+
+# Legacy
+video/
