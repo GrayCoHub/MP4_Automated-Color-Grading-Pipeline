@@ -1,0 +1,67 @@
+CC HANDOFF DIALOG — Phase 1 Automated Color Grade Evaluation Pipeline
+======================================================================
+Paste this as the instruction prompt when starting the CC session.
+CLAUDE.md and phase1_config.json must be present in the project folder.
+======================================================================
+
+
+
+
+You are being handed a Level 4 spec. Your role is execution only —
+do not invent architecture, do not add features, do not modify the spec.
+If you encounter an ambiguity, log it and make the most conservative
+implementation choice, then report it at the end.
+
+Read CLAUDE.md now. It is the authoritative spec document.
+
+Project:      Phase 1 — Automated Color Grade Evaluation Pipeline
+Spec version: v0.3
+Entry point:  phase1_run.py
+Config file:  phase1_config.json
+
+---
+
+SYSTEM DISCOVERY — perform before writing any code:
+
+1. python --version
+
+2. python -c "import cv2; print(cv2.__version__); print(cv2.cuda.getCudaEnabledDeviceCount())"
+   --> CUDA device count MUST be > 0
+   --> If 0 or cv2.cuda unavailable: STOP and report. Do not proceed.
+   --> NEVER run pip install opencv-python or any opencv pip variant.
+       This will destroy the CMake CUDA build and the live production pipeline.
+
+3. python -c "import PIL; print(PIL.__version__)"
+
+4. Confirm phase1_config.json exists and is readable
+
+5. Confirm LUT file exists at path specified in config
+
+6. Attempt Resolve scripting API import — report available or unavailable,
+   do not fail if unavailable
+
+---
+
+IMPLEMENTATION ORDER (from CLAUDE.md):
+
+1. phase1_config.py      — config loader and validator
+2. file_discovery.py     — recursive file finder, filtering, metadata extraction
+3. frame_analyzer.py     — OpenCV frame selection (all 5 frame types)
+4. grade_engine.py       — V0/V1/V2 in OpenCV; V3 Resolve stub with RESOLVE_UNAVAILABLE fallback
+5. sheet_composer.py     — Pillow contact sheet layout, annotation, histogram row
+6. csv_writer.py         — per-clip metrics CSV output
+7. summary_sheet.py      — run summary grid
+8. phase1_run.py         — orchestrator, calls all modules, produces run_log.txt
+
+---
+
+Acceptance criteria are in CLAUDE.md (12 criteria).
+Run verify_outputs() against all 12 before reporting complete.
+
+---
+
+REPORT BACK:
+- Clips processed (count)
+- Any acceptance criteria that did not pass
+- Any ambiguities encountered and how they were resolved
+- V3 Resolve status (available / unavailable)

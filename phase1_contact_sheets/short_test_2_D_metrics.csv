@@ -1,0 +1,6 @@
+frame_id,frame_index,timecode,lum_mean,lum_median,hist_spread,frame_delta,selection_reason,clip_name,session,group,nd_tag
+shadow,2619,00:01:44:19,80.9761,100.8843,172.0,15.1076,lum_mean,short_test_2_D,video,Devinci_Resolve_automation_M4Pro_video,none
+highlight,779,00:00:31:04,138.0324,100.8843,157.0,7.1546,lum_mean,short_test_2_D,video,Devinci_Resolve_automation_M4Pro_video,none
+midtone,3849,00:02:33:24,100.772,100.8843,172.0,17.1768,lum_mean,short_test_2_D,video,Devinci_Resolve_automation_M4Pro_video,none
+motion,2279,00:01:31:04,82.8518,100.8843,161.0,25.6063,frame_delta,short_test_2_D,video,Devinci_Resolve_automation_M4Pro_video,none
+wide_range,2559,00:01:42:09,84.4623,100.8843,177.0,12.6088,hist_spread,short_test_2_D,video,Devinci_Resolve_automation_M4Pro_video,none

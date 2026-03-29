@@ -1,0 +1,3 @@
+Start-Process mpv "C:\dev\All_dev_projects_testing_folder\Devinci_Resolve_automation_M4Pro_video\video\DJI_20260223132708_0001_D.MP4"
+
+Start-Process mpv "C:\dev\All_dev_projects_testing_folder\Devinci_Resolve_automation_M4Pro_video\video\DJI_20260223132708_0001_D_DJI_Mavic_4_Pro_D-Log_M_to_Rec.709_V1.MP4"

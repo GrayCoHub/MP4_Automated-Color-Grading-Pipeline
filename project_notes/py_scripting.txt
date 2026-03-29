@@ -1,0 +1,75 @@
+To enable Python scripting in DaVinci Resolve, you must place your script files into a specific folder within the DaVinci Resolve Support directory so the application can recognize and run them. This process varies slightly by operating system.
+
+Key Locations for Scripts:
+
+Windows: C:\Users\[YourUserName]\AppData\Roaming\Blackmagic Design\DaVinci Resolve\Support\Fusion\Scripts\Comp (1:37-2:24)
+macOS: /Library/Application Support/Blackmagic Design/DaVinci Resolve/Fusion/Scripts/Comp (2:02)
+Linux: /home/[yourname]/.local/share/DaVinciResolve/Fusion/Scripts/Comp (2:02)
+Steps to Enable and Run:
+
+Locate the Folder: You can find the exact location by opening Resolve and navigating to Help > Documentation > Developer to open the scripting folder (1:51-1:57).
+Move Scripts: Copy your .py files into the designated Scripts/Comp folder (2:28).
+Run Script: Inside DaVinci Resolve, go to the Fusion page, select Workspace > Scripts from the top menu, and select your script to run it (2:43-2:48).
+To ensure success, enable Show Script Messages and Show Input Messages in the Workspace > Console window to view outputs or errors (2:55-3:10).
+
+Python scripting in DaVinci Resolve becomes much easier once you understand the folder structure Resolve expects and how the Fusion scripting menu discovers your .py files. The video you’re watching lays out the essentials, and the key points line up cleanly with how Resolve’s scripting subsystem is designed. 
+
+Script folder locations by operating system
+Resolve only loads scripts from specific directories inside its Support folder. These paths differ slightly across platforms:
+
+OS	Script Location
+Windows	`C:\Users
+
+\[YourUserName]\AppData\Roaming\Blackmagic Design\DaVinci Resolve\Support\Fusion\Scripts\Comp| | **macOS** |/Library/Application Support/Blackmagic Design/DaVinci Resolve/Fusion/Scripts/Comp| | **Linux** |/home/[yourname]/.local/share/DaVinciResolve/Fusion/Scripts/Comp` |
+
+These are the folders Resolve scans automatically when populating the Workspace → Scripts menu. 
+
+How to locate the correct folder from inside Resolve
+Resolve includes a shortcut that opens the exact scripting directory for your installation:
+
+Go to Help → Documentation → Developer
+
+Resolve opens the scripting folder directly in your file explorer. 
+
+This avoids guessing paths, especially on systems with multiple user profiles or custom installs.
+
+How to install and run your Python scripts
+Once you know the folder, the workflow is straightforward:
+
+1. Place your scripts in the correct directory
+Copy your .py files into:
+
+Code
+Fusion/Scripts/Comp
+Resolve only loads scripts placed in this Comp subfolder. 
+
+2. Run the script from the Fusion page
+Switch to the Fusion page
+
+Open Workspace → Scripts
+
+Your script will appear in the list
+
+Select it to execute it inside Resolve 
+
+This menu is dynamic—Resolve scans the folder each time you open it.
+
+How to see output, errors, and debugging messages
+Fusion includes a console that shows print statements, errors, and input prompts:
+
+Open Workspace → Console
+
+Enable Show Script Messages
+
+Enable Show Input Messages 
+
+This is essential for debugging, especially when testing Resolve’s API calls or verifying that a script actually ran.
+
+A few deeper notes that matter for real workflows
+Scripts in the Comp folder run inside Fusion, not the Edit or Color pages. If you want to automate timeline operations, you’ll use the Resolve API from Fusion’s environment.
+
+Resolve uses its own embedded Python, so system-wide packages aren’t automatically available unless you explicitly add paths.
+
+Scripts can be organized into submenus by placing them in subfolders under Scripts/Comp.
+
+Your next step depends on what you want to automate. Are you planning to run Resolve API scripts (timeline, media pool, render automation), or Fusion node–level scripts?

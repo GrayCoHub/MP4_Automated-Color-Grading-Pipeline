@@ -1,0 +1,13 @@
+{
+  "root_folder": "C:\\dev\\All_dev_projects_testing_folder\\Devinci_Resolve_automation_M4Pro_video\\input_video\\",
+  "lut_path": "C:\\dev\\All_dev_projects_testing_folder\\Devinci_Resolve_automation_M4Pro_video\\DJI_Mavic_4_Pro_D-Log_M_to_Rec.709_V1.cube",
+  "landscape_lut_path": "C:\\dev\\All_dev_projects_testing_folder\\Devinci_Resolve_automation_M4Pro_video\\DLOGM_REC709_65_CUBE_ZRG_V1.cube",
+  "output_root": "C:\\dev\\All_dev_projects_testing_folder\\Devinci_Resolve_automation_M4Pro_video\\phase1_contact_sheets",
+  "min_clip_duration_seconds": 10,
+  "max_clip_duration_seconds": 120,
+  "trim_margin_percent": 10,
+  "frame_sample_interval": 10,
+  "contact_sheet_width_px": 3200,
+  "annotation_font_size": 28,
+  "test_mode": false
+}

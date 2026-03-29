@@ -1,0 +1,6 @@
+frame_id,frame_index,timecode,lum_mean,lum_median,hist_spread,frame_delta,selection_reason,clip_name,session,group,nd_tag
+shadow,1192,00:00:47:17,111.1751,118.7024,136.0,6.4344,lum_mean,DJI_20260322142806_0011_D,032226,Mavic4Pro,none
+highlight,312,00:00:12:12,127.5344,118.7024,125.0,9.3395,lum_mean,DJI_20260322142806_0011_D,032226,Mavic4Pro,none
+midtone,972,00:00:38:22,118.7024,118.7024,121.0,8.9332,lum_mean,DJI_20260322142806_0011_D,032226,Mavic4Pro,none
+motion,142,00:00:05:17,116.8672,118.7024,132.0,20.7867,frame_delta,DJI_20260322142806_0011_D,032226,Mavic4Pro,none
+wide_range,372,00:00:14:22,124.8833,118.7024,140.0,12.8523,hist_spread,DJI_20260322142806_0011_D,032226,Mavic4Pro,none

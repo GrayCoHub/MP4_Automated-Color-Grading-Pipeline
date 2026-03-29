@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python:*)",
+      "Bash(python -u -c \":*)",
+      "Bash(\"C:\\\\Program Files\\\\Python311\\\\python.exe\" poc_phase2.py)",
+      "Bash(\"C:\\\\Program Files\\\\Python311\\\\python.exe\" --version)",
+      "Bash(\"C:\\\\Program Files\\\\Python311\\\\python.exe\" -c \"import cv2; print\\(cv2.__version__\\); print\\(cv2.cuda.getCudaEnabledDeviceCount\\(\\)\\)\")"
+    ]
+  }
+}

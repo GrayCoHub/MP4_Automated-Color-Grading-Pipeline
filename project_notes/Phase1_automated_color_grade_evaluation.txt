@@ -1,0 +1,58 @@
+Phase 1 — Automated Color Grade Evaluation
+
+Strategic Decision
+
+DaVinci Resolve was identified as the industry standard tool for color grading drone footage. Upon initial evaluation it became immediately clear that achieving professional results through Resolve's standard 3-node manual color grading workflow -- primary correction, LUT application, and creative grade -- requires a significant investment of time and skill development that falls outside the project's scope and engagement model. The decision was made on the same day as the first Resolve session: rather than investing in becoming proficient in manual color grading, all effort would be directed toward automating the entire grading workflow through Python scripting. This decision aligns directly with the Level 4 AI engagement model -- write specs, evaluate outcomes, delegate implementation to CC. Manual color grading is fundamentally incompatible with Level 4 because it requires hands-on craft judgment that cannot be delegated.
+
+This strategic decision reframes DaVinci Resolve from a manual grading tool into a scriptable color science engine -- its Python API becomes the interface and its node architecture becomes the automation target. The contact sheet methodology was designed specifically to support this approach: automated frame selection, automated grade application, and visual output that can be evaluated quickly without color grading expertise.
+
+All project scripts are now accessible from Workspace → Scripts → Utility → Devinci_Resolve_automation_M4Pro_video inside Resolve, with full API access and no external connection required. Two additional fixes were required for the internal runner: all flush=True parameters were removed from print() calls (Resolve's fu_stdout module does not support the flush attribute), and multiprocessing Pool was replaced with a direct for loop to prevent orphaned processes that could only be cleared by rebooting the PC.
+LUT Evaluation Results
+
+The contact sheet comparison between DJI Official LUT and Zeb Gardner LUT confirmed the scientific data visually. The DJI LUT produces a warmer, more processed look with noticeable shadow crushing in dark forest and mountain areas. The Zeb Gardner LUT produces cooler, more accurate colors that match the actual SE Alaska visual environment -- natural water blues, clean snow whites, and preserved shadow detail in tree backgrounds. The Zeb Gardner LUT was confirmed as the Phase 1 winner and is now the V1 baseline replacing the DJI Official LUT.
+Video Export and Comparison
+
+A companion script apply_lut_to_video.py was built to apply any LUT from C:\dev\LUTs_folder\ to a full video clip using ffmpeg with libx264 CPU encoding. NVENC hardware encoding was attempted but blocked by a version mismatch -- the installed Gyan ffmpeg 8.1 build requires NVENC API 13.0 (driver 570+) while the system is locked to driver 560.94 to protect the custom OpenCV CUDA CMake build. This driver must not be updated. libx264 CPU encoding is the confirmed safe alternative. The script prompts for LUT selection from the library and input video path, reports progress every 100 frames with elapsed time and ETA, and names output files with the LUT name appended. MPV player was installed and added to system PATH for side-by-side video comparison.
+
+Shooting Standards Established
+
+Phase 1 evaluation revealed two baked-in artifacts in the test footage caused by camera settings: white balance hunting from Auto WB mode, and exposure flicker from Auto exposure hunting mid-shot. Both are permanently baked into the D-Log M source and cannot be corrected in post. A pre-flight checklist was established as a permanent standard: shoot D-Log M with white balance set to Auto to find the correct Kelvin, then immediately switch to Manual and lock that value before recording. SE Alaska defaults are 5600K for daylight and 6500K for overcast. Exposure must be set to Manual with ISO 100-400, shutter at 2x frame rate, and the correct ND filter installed. These standards ensure clean, consistent D-Log M footage that the Zeb Gardner LUT converts reliably without per-clip Node 1 correction.
+
+
+Running Phase 1
+
+Phase 1 is executed from inside DaVinci Resolve using the built-in script runner. With Resolve open and a project loaded:
+
+Workspace menu
+  → Scripts
+    → Utility
+      → Devinci_Resolve_automation_M4Pro_video
+        → phase1_run
+
+PS Code to run:
+
+cd "C:\dev\All_dev_projects_testing_folder\
+Devinci_Resolve_automation_M4Pro_video"
+
+& "C:\Program Files\Python311\python.exe" apply_lut_to_video.py
+
+
+
+The script reads its configuration from phase1_config.json in the project folder. The config specifies the video source folder, LUT paths, and output folder. A single-file override is supported for testing -- set single_file_override in the config to point to a specific clip rather than scanning the entire source folder.
+
+Output is written to:
+
+C:\dev\All_dev_projects_testing_folder\
+Devinci_Resolve_automation_M4Pro_video\
+phase1_output\
+
+
+Phase 1 Output
+
+Confirmed base LUT:    Zeb Gardner DLOGM_REC709_65_CUBE_ZRG_V1.cube
+LUT library:           C:\dev\LUTs_folder\
+Contact sheet script:  phase1_run.py (runs inside Resolve)
+Video export script:   apply_lut_to_video.py
+Comparison tool:       MPV player (system PATH)
+Resolve integration:   symbolic link to Utility\ scripts folder
+Shooting standard:     pre-flight checklist (permanent memory)
